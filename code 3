@@ -1,0 +1,150 @@
+import pygame
+import time
+import random
+
+# Initialize pygame
+pygame.init()
+
+# Set up display dimensions
+WIDTH, HEIGHT = 600, 400
+BLOCK_SIZE = 20
+FPS = 15
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+# Set up the display
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Snake Game")
+
+# Clock for controlling the game's frame rate
+clock = pygame.time.Clock()
+
+# Fonts
+font_style = pygame.font.SysFont(None, 30)
+
+
+def message(msg, color):
+    mesg = font_style.render(msg, True, color)
+    screen.blit(mesg, [WIDTH / 6, HEIGHT / 3])
+
+
+def your_score(score):
+    value = font_style.render("Your Score: " + str(score), True, BLACK)
+    screen.blit(value, [0, 0])
+
+
+def game_loop(background_image):
+    # Load background image
+    background = pygame.image.load(background_image)
+    background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+
+    # Initial position of the snake
+    x = WIDTH / 2
+    y = HEIGHT / 2
+
+    # Change in position of the snake
+    x_change = 0
+    y_change = 0
+
+    # Initial length of the snake
+    snake_list = []
+    length_of_snake = 1
+
+    # Position of food
+    food_x = round(random.randrange(0, WIDTH - BLOCK_SIZE) / BLOCK_SIZE) * BLOCK_SIZE
+    food_y = round(random.randrange(0, HEIGHT - BLOCK_SIZE) / BLOCK_SIZE) * BLOCK_SIZE
+
+    # Score counter
+    score = 0
+
+    game_over = False
+    game_close = False
+
+    while not game_over:
+
+        while game_close:
+            screen.fill(WHITE)
+            message("You Lost! Press Q-Quit or C-Play Again", RED)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        game_over = True
+                        game_close = False
+                    elif event.key == pygame.K_c:
+                        game_loop(background_image)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    x_change = -BLOCK_SIZE
+                    y_change = 0
+                elif event.key == pygame.K_RIGHT:
+                    x_change = BLOCK_SIZE
+                    y_change = 0
+                elif event.key == pygame.K_UP:
+                    x_change = 0
+                    y_change = -BLOCK_SIZE
+                elif event.key == pygame.K_DOWN:
+                    x_change = 0
+                    y_change = BLOCK_SIZE
+
+        # Update snake's position
+        x += x_change
+        y += y_change
+
+        # Check if the snake has hit the boundaries
+        if x >= WIDTH or x < 0 or y >= HEIGHT or y < 0:
+            game_close = True
+
+        # Draw background image
+        screen.blit(background, (0, 0))
+
+        pygame.draw.rect(screen, GREEN, [food_x, food_y, BLOCK_SIZE, BLOCK_SIZE])
+
+        snake_head = []
+        snake_head.append(x)
+        snake_head.append(y)
+        snake_list.append(snake_head)
+
+        if len(snake_list) > length_of_snake:
+            del snake_list[0]
+
+        for segment in snake_list[:-1]:
+            if segment == snake_head:
+                game_close = True
+
+        # Draw the snake
+        for segment in snake_list:
+            pygame.draw.rect(screen, BLACK, [segment[0], segment[1], BLOCK_SIZE, BLOCK_SIZE])
+
+        # Draw score
+        your_score(length_of_snake - 1)
+
+        pygame.display.update()
+
+        # Check if the snake has eaten the food
+        if x == food_x and y == food_y:
+            food_x = round(random.randrange(0, WIDTH - BLOCK_SIZE) / BLOCK_SIZE) * BLOCK_SIZE
+            food_y = round(random.randrange(0, HEIGHT - BLOCK_SIZE) / BLOCK_SIZE) * BLOCK_SIZE
+            length_of_snake += 1
+            score += 1
+
+        # Set the frame rate
+        clock.tick(FPS)
+
+    pygame.quit()
+    quit()
+
+
+# Example usage
+background_image = "background.png"  # Replace "background.png" with your desired PNG image path
+game_loop(background_image)
