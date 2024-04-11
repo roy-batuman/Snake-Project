@@ -49,9 +49,6 @@ def show_title_screen():
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if dis_width/3 <= mouse_pos[0] <= dis_width/3 + 200 and \
