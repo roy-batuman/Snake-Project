@@ -37,6 +37,25 @@ def message(msg, color, x, y):
     mesg = font_style.render(msg, True, color)
     dis.blit(mesg, [x, y])
 
+# Function to display title screen
+def show_title_screen():
+    dis.fill(blue)
+    message("Snake Game", red, dis_width/3, dis_height/3)
+    pygame.draw.rect(dis, green, [dis_width/3, dis_height/2, 200, 50])
+    message("Play", black, dis_width/3 + 50, dis_height/2 + 10)
+    pygame.display.update()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if dis_width/3 <= mouse_pos[0] <= dis_width/3 + 200 and \
+                    dis_height/2 <= mouse_pos[1] <= dis_height/2 + 50:
+                    return
+
 # Function to display leaderboard
 def show_leaderboard(score):
     dis.fill(blue)
@@ -46,17 +65,26 @@ def show_leaderboard(score):
     time.sleep(2)
 
     # Read leaderboard from file
+    highest_score = 0
     leaderboard = []
     try:
         with open("leaderboard.txt", "r") as file:
             for line in file:
-                leaderboard.append(line.strip())
+                score = int(line.strip())
+                leaderboard.append(score)
+                if score > highest_score:
+                    highest_score = score
     except FileNotFoundError:
         pass
 
-    # Append current score and sort
-    leaderboard.append(str(score))
-    leaderboard = sorted(leaderboard, reverse=True)
+    # Update highest score if applicable
+    if score > highest_score:
+        highest_score = score
+
+    # Write leaderboard to file
+    with open("leaderboard.txt", "w") as file:
+        for score in leaderboard:
+            file.write(f"{score}\n")
 
     # Display leaderboard
     dis.fill(blue)
@@ -76,6 +104,7 @@ def snake(block_size, snake_list):
 
 # Main game loop
 def gameLoop():
+    show_title_screen()
     game_over = False
     game_close = False
 
@@ -102,15 +131,15 @@ def gameLoop():
         while game_close:
             show_leaderboard(score)
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         game_over = True
                         game_close = False
                     elif event.key == pygame.K_r:
                         gameLoop()
-                if event.type == pygame.QUIT:
-                    game_over = True
-                    game_close = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -166,3 +195,4 @@ def gameLoop():
     quit()
 
 gameLoop()
+
