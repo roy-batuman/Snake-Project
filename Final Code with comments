@@ -188,9 +188,11 @@ def gameLoop():
         snake_head.append(lead_y)
         snake_list.append(snake_head)
 
+#If the length of the snake list is longer than the length of the snake, you lose
         if len(snake_list) > snake_length:
             del snake_list[0]
 
+#Sets up collision for snake head with body
         for x in snake_list[:-1]:
             if x == snake_head:
                 game_close = True
