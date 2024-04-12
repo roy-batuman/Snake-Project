@@ -173,7 +173,7 @@ def gameLoop():
         snake_head.append(lead_x)
         snake_head.append(lead_y)
         snake_list.append(snake_head)
-
+#Condition that will shut down the program if ever false
         if len(snake_list) > snake_length:
             del snake_list[0]
 
